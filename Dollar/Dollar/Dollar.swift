@@ -189,7 +189,7 @@ class Dollar {
             return result
         }
     }
-    
+
     /// Get the first object in the wrapper object.
     ///
     /// :param array The array to wrap.
@@ -604,17 +604,17 @@ class Dollar {
     ///
     /// :param array The array to shuffle.
     /// :return Shuffled array
-    class func shuffle<T>(array: [T]) -> [T] {
-        // Implementation of Fisher-Yates shuffle
-        // http://en.wikipedia.org/wiki/Fisher-Yates_Shuffle
-        for index in 0..<array.count {
-            var randIndex = Int(arc4random_uniform(UInt32(index)))
-            
-            // We use in-out parameters to swap the internals of the array
-            swap(&array[index], &array[randIndex])
-        }
-        return array
-    }
+//    class func shuffle<T>(array: [T]) -> [T] {
+//        // Implementation of Fisher-Yates shuffle
+//        // http://en.wikipedia.org/wiki/Fisher-Yates_Shuffle
+//        for index in 0..<array.count {
+//            var randIndex = Int(arc4random_uniform(UInt32(index)))
+//            
+//            // We use in-out parameters to swap the internals of the array
+//            swap(&array[index], &array[randIndex])
+//        }
+//        return array
+//    }
 
     /// This method returns a dictionary of values in an array mapping to the
     /// total number of occurrences in the array.
@@ -752,7 +752,7 @@ class Dollar {
     class func map<T, E>(array: [T], transform: (T) -> E) -> [E] {
         return array.map(transform)
     }
-    
+
     /// Retrieves the maximum value in an array.
     ///
     /// :param array The array to source from.
@@ -1233,7 +1233,7 @@ class Dollar {
     ///
     /// :param arrays The arrays to be grouped.
     /// :return An array of grouped elements.
-    class func zip(arrays: [AnyObject]...) -> [AnyObject] {
+    class func zipArrays(arrays: [AnyObject]...) -> [AnyObject] {
         var result: [[AnyObject]] = []
         for _ in self.first(arrays) as [AnyObject] {
             result += [] as [AnyObject]
@@ -1258,6 +1258,22 @@ class Dollar {
         }
         return result
     }
+//    class func zip<T, U>(arr1: [T], arr2: [U]) -> [(T, U)] {
+//        var result : [(T,U)] = []
+//        if arr1.count != arr2.count {
+//            return result
+//        }
+//        for (i, elmT) in enumerate(arr1) {
+//            if let elmU = arr2.get(i) { // Causes Xcode6-Beta3 crash
+//                result[i] = (elmT, elmU)
+//            } else {
+//                return result
+//            }
+//        }
+//        return result
+//    }
+
+
 }
 
 typealias $ = Dollar
