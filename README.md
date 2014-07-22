@@ -81,6 +81,7 @@ Method | Usage
 **`$.range`**|Creates an array of numbers (positive and/or negative) progressing from start up to but not including end.
 **`$.sequence`**|Creates an array of an arbitrary sequence. Especially useful with builtin ranges.
 **`$.remove`**|Removes all elements from an array that the callback returns true.
+**`$.shuffle`**|Shuffles and returns the new shuffled array.
 **`$.slice`**|Slices the array based on the start and end position. If an end position is not specified it will slice till the end of the array.
 **`$.sortedIndex`**|Gives the smallest index at which a value should be inserted into a given the array is sorted.
 **`$.union`**|Creates an array of unique values, in order, of the provided arrays.
@@ -450,6 +451,16 @@ Removes all elements from an array that the callback returns true.
 let result = $.remove([1, 2, 3, 4, 5, 6]) { $0 == 2 || $0 == 3 }
 result
 => [1, 4, 5, 6]
+```
+
+### shuffle - `$.shuffle`
+
+Shuffles and returns the new shuffled array
+
+```swift
+let result = $.shuffle([1, 2, 3, 4, 5, 6])
+result
+=> [4, 1, 3, 5, 6, 2]
 ```
 
 ### sortedIndex - `$.sortedIndex`
@@ -828,22 +839,114 @@ Method | Usage
 ## Cent Examples ##
 
 ### Array Example Usage ###
-> TODO: Add examples
+```swift
+let array = ["foo", "spam", "bar", "eggs"]
+let some = array.at(1, 3)
+=> ["spam", "eggs"]
+
+["angry", "hungry"].every { (a: String) -> (Bool) in a.hasSuffix("gry") }
+=> true
+
+let ind: int? = ["foo", "bar", "spam", "eggs"].findIndex({ $0.length == 4 })
+ind! == 2 
+=> true
+
+let ind: int? = ["foo", "bar", "spam", "eggs"].findLastIndex({ $0.length == 4 })
+ind! == 3 
+=> true
+
+let first = ["foo", "bar"].first()
+=> "foo"
+
+let unFlattened = ["foo", ["bar"], [["spam"]], [[["eggs"]]] ]
+let flattened = unFlattened.flatten() 
+=> ["foo", "bar", "spam", "eggs"]
+
+let element = ["foo", "bar"].get(0)
+element!
+=> "foo"
+
+let nothing = ["foo", "bar"].get(1000)
+=> nil
+
+let initial = ["foo", "bar", "spam"].initial(2) 
+=> ["foo"]
+
+let last = ["foo", "bar"].last() 
+=> "bar"
+
+let rest = ["foo", "bar", "spam"].rest(2)
+=> ["spam"]
+
+let min = [ 0, 1, 2 ].min()
+=> 0
+
+let max = [ 0, 1, 2].max()
+=> 2
+```
 
 ### Date Example Usage ###
-> TODO: Add examples
+```swift
+let date = Date.from(2014, 1, 1) 
+=> "Jan 1, 2014, 12:00 AM"
+
+let parsedDate = Date.parse("2014-01-01", format: "yyyy-MM-dd")
+=> "Jan 1, 2014, 12:00 AM"
+```
 
 ### Dictionary Example Usage ###
-> TODO: Add examples
+```swift
+let dictionary = [String: String]()
+dictionary.isEmpty() 
+=> true
+
+["foo": "bar"].isEmpty() 
+=> false
+
+var dic = ["foo": "bar"] 
+let anotherDic = ["foo": "baz", "spam": "eggs"]
+dic.merge(anotherDic)
+=> ["foo": "baz", "spam": "eggs"]
+```
 
 ### Int Example Usage ###
-> TODO: Add examples
+```swift
+5.times { print("Na") } 
+=> NaNaNaNaNa
+
+5.times { (a: Int) -> () in print("\(a) ") } 
+=> 0 1 2 3 4  
+```
 
 ### String Example Usage ###
-> TODO: Add examples
+```swift
+"Hello World"[6] == "W"
+=> true
+
+"Hello World"[0..<5] == "Hello" 
+=> true
+
+"Hello World".split(" ") 
+=> ["Hello", "World"]
+
+"Hi"[5]
+=> nil
+```
 
 ### Range Example Usage ###
-> TODO: Add examples
+```swift
+(1...5).eachWithIndex { (a: Int) -> () in print("\(a)") } 
+=> 12345
+
+(1...5).each { print('Na') } 
+=> NaNaNaNaNa
+
+(1...5) == (1...5) 
+=> true
+
+(1..<5) == (1...5) 
+=> false
+```
 
 ## Contributing ##
 If you are interested in contributing checkout [CONTRIBUTING.md](CONTRIBUTING.md)

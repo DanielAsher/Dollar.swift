@@ -141,7 +141,7 @@ class Dollar {
     /// :return The wrapper object.
     func flatten() -> Dollar {
         return self.queue {
-            return Dollar.flatten($0 as Array<Any>)
+            return Dollar.flatten($0 as [AnyObject])
         }
     }
     
@@ -158,7 +158,7 @@ class Dollar {
     /// :return The wrapper object.
     func initial(numElements: Int) -> Dollar {
         return self.queue {
-            return Dollar.initial($0 as Array<AnyObject>, numElements: numElements)
+            return Dollar.initial($0 as [AnyObject], numElements: numElements)
         }
     }
     
@@ -169,7 +169,7 @@ class Dollar {
     func map(function: (AnyObject) -> AnyObject) -> Dollar {
         return self.queue {
             var result: [AnyObject] = []
-            for elem : AnyObject in $0 as Array<AnyObject> {
+            for elem : AnyObject in $0 as [AnyObject] {
                 result += function(elem)
             }
             return result
@@ -183,7 +183,7 @@ class Dollar {
     func map(function: (Int, AnyObject) -> AnyObject) -> Dollar {
         return self.queue {
             var result: [AnyObject] = []
-            for (index, elem : AnyObject) in enumerate($0 as Array<AnyObject>) {
+            for (index, elem : AnyObject) in enumerate($0 as [AnyObject]) {
                 result += function(index, elem)
             }
             return result
@@ -196,7 +196,7 @@ class Dollar {
     /// :return The wrapper object.
     func each(function: (AnyObject) -> ()) -> Dollar {
         return self.queue {
-            for elem : AnyObject in $0 as Array<AnyObject> {
+            for elem : AnyObject in $0 as [AnyObject] {
                 function(elem)
             }
             return $0
@@ -209,7 +209,7 @@ class Dollar {
     /// :return The wrapper object.
     func each(function: (Int, AnyObject) -> ()) -> Dollar {
         return self.queue {
-            for (index, elem : AnyObject) in enumerate($0 as Array<AnyObject>) {
+            for (index, elem : AnyObject) in enumerate($0 as [AnyObject]) {
                 function(index, elem)
             }
             return $0
@@ -222,7 +222,7 @@ class Dollar {
     /// :return The wrapper object.
     func filter(function: (AnyObject) -> Bool) -> Dollar {
         return self.queue {
-            return ($0 as Array<AnyObject>).filter(function)
+            return ($0 as [AnyObject]).filter(function)
         }
     }
     
@@ -242,7 +242,7 @@ class Dollar {
     /// :return Whether any one element is true according to func function in the array.
     func any(function: (AnyObject) -> Bool) -> Dollar {
         return self.queue {
-            for elem : AnyObject in $0 as Array<AnyObject> {
+            for elem : AnyObject in $0 as [AnyObject] {
                 if function(elem) {
                     return true
                 }
@@ -258,7 +258,7 @@ class Dollar {
     /// :return The wrapper object.
     func slice(start: Int, end: Int = 0) -> Dollar {
         return self.queue {
-            return Dollar.slice($0 as Array<AnyObject>, start: start, end: end);
+            return Dollar.slice($0 as [AnyObject], start: start, end: end);
         }
     }
     
@@ -371,13 +371,25 @@ class Dollar {
         return Swift.contains(array, value)
     }
     
+    /// Create a copy of an array
+    ///
+    /// :param array The array to copy
+    /// :return New copy of array
+    class func copy<T>(array: [T]) -> [T] {
+        var newArr : [T] = []
+        for elem in array {
+            newArr.append(elem)
+        }
+        return newArr
+    }
+        
     /// Creates an array excluding all values of the provided arrays.
     ///
     /// :param arrays The arrays to difference between.
     /// :return The difference between the first array and all the remaining arrays from the arrays params.
     class func difference<T : Hashable>(arrays: [T]...) -> [T] {
         var result : [T] = []
-        var map : Dictionary<T, Int> = Dictionary<T, Int>()
+        var map : [T: Int] = [T: Int]()
         let firstArr : [T] = self.first(arrays)!
         let restArr : [[T]] = self.rest(arrays) as [[T]]
         
@@ -588,10 +600,10 @@ class Dollar {
     ///
     /// :param array The array to flatten.
     /// :return Flattened array.
-    class func flatten<T>(array: [T]) -> [T] {
-        var resultArr: [T] = []
-        for elem : T in array {
-            if let val = elem as? [T] {
+    class func flatten(array: [AnyObject]) -> [AnyObject] {
+        var resultArr: [AnyObject] = []
+        for elem : AnyObject in array {
+            if let val = elem as? [AnyObject] {
                 resultArr += self.flatten(val)
             } else {
                 resultArr += elem
@@ -604,6 +616,7 @@ class Dollar {
     ///
     /// :param array The array to shuffle.
     /// :return Shuffled array
+<<<<<<< HEAD
 //    class func shuffle<T>(array: [T]) -> [T] {
 //        // Implementation of Fisher-Yates shuffle
 //        // http://en.wikipedia.org/wiki/Fisher-Yates_Shuffle
@@ -616,12 +629,27 @@ class Dollar {
 //        return array
 //    }
 
+=======
+    class func shuffle<T>(array: [T]) -> [T] {
+        var newArr = self.copy(array)
+        // Implementation of Fisher-Yates shuffle
+        // http://en.wikipedia.org/wiki/Fisher-Yates_Shuffle
+        for index in 0..<array.count {
+            var randIndex = Int(arc4random_uniform(UInt32(index)))
+            
+            // We use in-out parameters to swap the internals of the array
+            Swift.swap(&newArr[index], &newArr[randIndex])
+        }
+        return newArr
+    }
+    
+>>>>>>> upstream/master
     /// This method returns a dictionary of values in an array mapping to the
     /// total number of occurrences in the array.
     ///
     /// :param array The array to source from.
     /// :return Dictionary that contains the key generated from the element passed in the function.
-    class func frequencies<T>(array: Array<T>) -> Dictionary<T, Int> {
+    class func frequencies<T>(array: [T]) -> [T: Int] {
         return self.frequencies(array) { $0 }
     }
     
@@ -632,8 +660,8 @@ class Dollar {
     /// :param array The array to source from.
     /// :param function The function to get value of the key for each element to group by.
     /// :return Dictionary that contains the key generated from the element passed in the function.
-    class func frequencies<T, U: Equatable>(array: Array<T>, function: (T) -> U) -> Dictionary<U, Int> {
-        var result = Dictionary<U, Int>()
+    class func frequencies<T, U: Equatable>(array: [T], function: (T) -> U) -> [U: Int] {
+        var result = [U: Int]()
         for elem in array {
             let key = function(elem)
             if let freq = result[key] {
@@ -682,7 +710,7 @@ class Dollar {
     /// :param arrays The arrays to perform an intersection on.
     /// :return Intersection of all arrays passed.
     class func intersection<T : Hashable>(arrays: [T]...) -> [T] {
-        var map : Dictionary<T, Int> = Dictionary<T, Int>()
+        var map : [T: Int] = [T: Int]()
         for arr in arrays {
             for elem in arr {
                 if let val : Int = map[elem] {
@@ -715,7 +743,7 @@ class Dollar {
     ///
     /// :param dictionary The dictionary to source from.
     /// :return Array of keys from dictionary.
-    class func keys<T, U>(dictionary: Dictionary<T, U>) -> [T] {
+    class func keys<T, U>(dictionary: [T: U]) -> [T] {
         var result : [T] = []
         for (key, _) in dictionary {
             result.insert(key, atIndex: 0)
@@ -772,7 +800,7 @@ class Dollar {
     /// :param function The function to memoize.
     /// :return Memoized function
     class func memoize<T: Hashable, U>(function: ((T -> U), T) -> U) -> (T -> U) {
-        var cache = Dictionary<T, U>()
+        var cache = [T: U]()
         var funcRef: (T -> U)!
         funcRef = { (param : T) -> U in
             if let cacheVal = cache[param] {
@@ -789,8 +817,8 @@ class Dollar {
     ///
     /// :param dictionaries The dictionaries to source from.
     /// :return Merged dictionary with all of its keys and values.
-    class func merge<T, U>(#dictionaries: Dictionary<T, U>...) -> Dictionary<T, U> {
-        var result = Dictionary<T, U>()
+    class func merge<T, U>(#dictionaries: [T: U]...) -> [T: U] {
+        var result = [T: U]()
         for dict in dictionaries {
             for (key, value) in dict {
                 result[key] = value
@@ -803,8 +831,8 @@ class Dollar {
     ///
     /// :param arrays The arrays to source from.
     /// :return Array with all values merged, including duplicates.
-    class func merge<T>(#arrays: Array<T>...) -> Array<T> {
-        var result = Array<T>()
+    class func merge<T>(#arrays: [T]...) -> [T] {
+        var result = [T]()
         for arr in arrays {
             result += arr
         }
@@ -837,8 +865,8 @@ class Dollar {
     /// :param dictionary The dictionary to source from.
     /// :param keys The keys to omit from returning dictionary.
     /// :return Dictionary with the keys specified omitted.
-    class func omit<T, U>(dictionary: Dictionary<T, U>, keys: T...) -> Dictionary<T, U> {
-        var result : Dictionary<T, U> = Dictionary<T, U>()
+    class func omit<T, U>(dictionary: [T: U], keys: T...) -> [T: U] {
+        var result : [T: U] = [T: U]()
         
         for (key, value) in dictionary {
             if !self.contains(keys, value: key) {
@@ -865,14 +893,14 @@ class Dollar {
     /// :param n The number of elements in each partition.
     /// :param step The number of elements to progress between each partition. Set to n if not supplied.
     /// :return Array partitioned into n element arrays, starting step elements apart.
-    class func partition<T>(array: Array<T>, var n: Int, var step: Int? = nil) -> Array<Array<T>> {
-        var result = Array<Array<T>>()
+    class func partition<T>(array: [T], var n: Int, var step: Int? = nil) -> [[T]] {
+        var result = [[T]]()
         if !step?   { step = n } // If no step is supplied move n each step.
         if step < 1 { step = 1 } // Less than 1 results in an infinite loop.
         if n < 1    { n = 0 }    // Allow 0 if user wants [[],[],[]] for some reason.
         if n > array.count { return [[]] }
         
-        for i in (0...array.count-n).by(step!) {
+        for i in self.range(0, endVal: array.count - n, incrementBy: step!) {
             result += Array(array[i..<(i+n)] as Slice<T>)
         }
         return result
@@ -887,13 +915,13 @@ class Dollar {
     ///            contain n elements. If nil is passed or there are not enough pad elements
     ///            the last partition may less than n elements long.
     /// :return Array partitioned into n element arrays, starting step elements apart.
-    class func partition<T>(var array: [T], var n: Int, var step: Int? = nil, pad: [T]?) -> Array<Array<T>> {
+    class func partition<T>(var array: [T], var n: Int, var step: Int? = nil, pad: [T]?) -> [[T]] {
         var result : [[T]] = []
         if !step?   { step = n } // If no step is supplied move n each step.
         if step < 1 { step = 1 } // Less than 1 results in an infinite loop.
         if n < 1    { n = 0 }    // Allow 0 if user wants [[],[],[]] for some reason.
         
-        for i in (0..<array.count).by(step!) {
+        for i in self.range(0, endVal: array.count, incrementBy: step!) {
             var end = i+n
             if end > array.count { end = array.count }
             result += Array(array[i..<end] as Slice<T>)
@@ -914,13 +942,13 @@ class Dollar {
     /// :param n The number of elements in each partition.
     /// :param step The number of elements to progress between each partition. Set to n if not supplied.
     /// :return Array partitioned into n element arrays, starting step elements apart.
-    class func partitionAll<T>(array: Array<T>, var n: Int, var step: Int? = nil) -> Array<Array<T>> {
-        var result = Array<Array<T>>()
+    class func partitionAll<T>(array: [T], var n: Int, var step: Int? = nil) -> [[T]] {
+        var result = [[T]]()
         if !step?   { step = n } // If no step is supplied move n each step.
         if step < 1 { step = 1 } // Less than 1 results in an infinite loop.
         if n < 1    { n = 0 }    // Allow 0 if user wants [[],[],[]] for some reason.
         
-        for i in (0..<array.count).by(step!) {
+        for i in self.range(0, endVal: array.count, incrementBy: step!) {
             var end = i+n
             if end > array.count { end = array.count }
             result += Array(array[i..<end] as Slice<T>)
@@ -933,8 +961,8 @@ class Dollar {
     /// :param array The array to partition.
     /// :param function Function which takes an element and produces an equatable result.
     /// :return Array partitioned in order, splitting via results of function.
-    class func partitionBy<T, U: Equatable>(array: Array<T>, function: (T) -> U) -> Array<Array<T>> {
-        var result = Array<Array<T>>()
+    class func partitionBy<T, U: Equatable>(array: [T], function: (T) -> U) -> [[T]] {
+        var result = [[T]]()
         var lastValue: U? = nil
         
         for item in array {
@@ -955,8 +983,8 @@ class Dollar {
     /// :param dictionary The dictionary to source from.
     /// :param keys The keys to pick values from.
     /// :return Dictionary with the key and values picked from the keys specified.
-    class func pick<T, U>(dictionary: Dictionary<T, U>, keys: T...) -> Dictionary<T, U> {
-        var result : Dictionary<T, U> = Dictionary<T, U>()
+    class func pick<T, U>(dictionary: [T: U], keys: T...) -> [T: U] {
+        var result : [T: U] = [T: U]()
         for key in keys {
             result[key] = dictionary[key]
         }
@@ -968,7 +996,7 @@ class Dollar {
     /// :param array The array to source from.
     /// :param value The property on object to pull out value from.
     /// :return Array of values from array of objects with property of value.
-    class func pluck<T, E>(array: [Dictionary<T, E>], value: T) -> [E] {
+    class func pluck<T, E>(array: [[T: E]], value: T) -> [E] {
         var result : [E] = []
         for obj in array {
             if let val = obj[value] {
@@ -999,7 +1027,7 @@ class Dollar {
     ///
     /// :param endVal End value of range.
     /// :return Array of elements based on the sequence starting from 0 to endVal and incremented by 1.
-    class func range<T : ForwardIndex where T : IntegerLiteralConvertible>(endVal: T) -> [T] {
+    class func range<T : Strideable where T : IntegerLiteralConvertible>(endVal: T) -> [T] {
         return self.range(0, endVal: endVal)
     }
     
@@ -1008,7 +1036,7 @@ class Dollar {
     /// :param startVal Start value of range
     /// :param endVal End value of range
     /// :return Array of elements based on the sequence that is incremented by 1
-    class func range<T : ForwardIndex where T.DistanceType : IntegerLiteralConvertible>(startVal: T, endVal: T) -> [T] {
+    class func range<T : Strideable where T.Stride : IntegerLiteralConvertible>(startVal: T, endVal: T) -> [T] {
         return self.range(startVal, endVal: endVal, incrementBy: 1)
     }
     
@@ -1018,8 +1046,8 @@ class Dollar {
     /// :param endVal End value of range.
     /// :param incrementBy Increment sequence by.
     /// :return Array of elements based on the sequence.
-    class func range<T : ForwardIndex>(startVal: T, endVal: T, incrementBy: T.DistanceType) -> [T] {
-        let range = (startVal..<endVal).by(incrementBy)
+    class func range<T : Strideable>(startVal: T, endVal: T, incrementBy: T.Stride) -> [T] {
+        var range = Swift.stride(from: startVal, through: endVal, by: incrementBy)
         return self.sequence(range)
     }
     
@@ -1158,7 +1186,7 @@ class Dollar {
     /// :param arrays The arrays to perform union on.
     /// :return Resulting array after union.
     class func union<T : Hashable>(arrays: [T]...) -> [T] {
-        var map : Dictionary<T, Bool> = Dictionary<T, Bool>()
+        var map : [T: Bool] = [T: Bool]()
         for arr in arrays {
             for elem in arr {
                 map[elem] = true
@@ -1176,7 +1204,7 @@ class Dollar {
     /// :param array The array to source from.
     /// :return An array with unique values.
     class func uniq<T : Hashable>(array: [T]) -> [T] {
-        var map : Dictionary<T, Bool> = Dictionary<T, Bool>()
+        var map : [T: Bool] = [T: Bool]()
         for elem in array {
             map[elem] = true
         }
@@ -1191,7 +1219,7 @@ class Dollar {
     ///
     /// :param dictionary The dictionary to source from.
     /// :return An array of values from the dictionary.
-    class func values<T, U>(dictionary: Dictionary<T, U>) -> [U] {
+    class func values<T, U>(dictionary: [T: U]) -> [U] {
         var result : [U] = []
         for (_, value) in dictionary {
             result.insert(value, atIndex: 0)
@@ -1213,7 +1241,7 @@ class Dollar {
     /// :param arrays The arrays to perform xor on in order.
     /// :return Resulting array after performing xor.
     class func xor<T : Hashable>(arrays: [T]...) -> [T] {
-        var map : Dictionary<T, Bool> = Dictionary<T, Bool>()
+        var map : [T: Bool] = [T: Bool]()
         for arr in arrays {
             for elem in arr {
                 map[elem] = !map[elem]
@@ -1251,8 +1279,8 @@ class Dollar {
     /// :param keys The array of keys.
     /// :param values The array of values.
     /// :return Dictionary based on the keys and values passed in order.
-    class func zipObject<T, E>(keys: [T], values: [E]) -> Dictionary<T, E> {
-        var result = Dictionary<T, E>()
+    class func zipObject<T, E>(keys: [T], values: [E]) -> [T: E] {
+        var result = [T: E]()
         for (index, key) in enumerate(keys) {
             result[key] = values[index]
         }
