@@ -22,7 +22,6 @@ extension Dictionary {
     ///
     /// :param dictionaries A comma seperated list of dictionaries
     mutating func merge<K, V>(dictionaries: Dictionary<K, V>...) {
-        for (key, value) in dict {
         for dict in dictionaries {
             for (key, value) in dict {
                 self.updateValue(value as ValueType, forKey: key as KeyType)
